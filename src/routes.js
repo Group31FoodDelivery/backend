@@ -75,6 +75,59 @@ app.get('/managers', function (req, res) {
 });
 
 
+app.post('/restaurants',
+      //only authenticated users can create bands
+      //passport.authenticate('jwt', { session: false }),
+      function (req, res) 
+      {
+        connectio.getConnection(function (err, connection) {
+        //check field filling
+        if(!req.body.Name  || !req.body.Type || !req.body.OperatingHours || !req.body.Price_level || !req.body.Rating || !req.body.Address || !req.body.Description)
+        {
+            //fields not filled, bad request
+           res.sendStatus(400);
+        }
+
+        /*if('Username' in req.body == false ) {
+          res.sendStatus(400);
+        }*/
+
+        else
+        {
+            //create band if all fields are filled
+            connectio.query('INSERT INTO restaurant(restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,managerId)VALUES(?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, req.body.managerId]);
+            res.sendStatus(201);
+        }
+      });
+    });
+
+
+    app.post('/registerManager',
+    //only authenticated users can create bands
+    //passport.authenticate('jwt', { session: false }),
+    function (req, res) 
+    {
+      connectio.getConnection(function (err, connection) {
+      //check field filling
+      if(!req.body.Firstname || !req.body.Surname || !req.body.Password || !req.body.Token || !req.body.Address || !req.body.ContactInfo)
+      {
+          //fields not filled, bad request
+         res.sendStatus(400);
+      }
+
+      /*if('Username' in req.body == false ) {
+        res.sendStatus(400);
+      }*/
+
+      else
+      {
+          //create band if all fields are filled
+          connectio.query('INSERT INTO manager(managerId,Firstname,Surname,Address,ContactInfo,Token,Password)VALUES(?,?,?,?,?,?,?);',[uuidv4(),req.body.Firstname, req.body.Surname, req.body.Address, req.body.ContactInfo, req.body.Token, req.body.Password]);
+          res.sendStatus(201);
+      }
+    });
+  });
+
 app.get('/restaurants', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
