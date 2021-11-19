@@ -122,6 +122,26 @@ app.get('/orders', function (req, res) {
   });
 });
 
+
+app.post('/Addorders',
+      
+      function (req, res) 
+      {
+        connectio.getConnection(function (err, connection) {
+
+        if(!req.body.Received || !req.body.Preparing || !req.body.Ready_For_Delivery || !req.body.Delivering || !req.body.Delivered || !req.body.Time)
+        {
+           res.sendStatus(400);
+        }
+        else
+        {
+            connectio.query('INSERT INTO order(orderId,Received,Preparing,Ready_For_Delivery,Delivering,Delivered,Time,customerId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.Received, req.body.Preparing, req.body.Ready_For_Delivery, req.body.Delivering, req.body.Delivered, req.body.Time, "62f5f340-aa0b-4c3a-9dde-fd895e2eb7b6"]);
+            res.sendStatus(201);
+        }
+      });
+    });
+
+
 app.get('/orders/:customerId', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
