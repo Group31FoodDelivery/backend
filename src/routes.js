@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
+const { v4: uuidv4 } = require('uuid');
  
 const connectio = mysql.createPool({
   host     : 'yummygo.mysql.database.azure.com',
@@ -11,6 +12,9 @@ const connectio = mysql.createPool({
 });
 
 const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Creating a GET route that returns data from the 'users' table.
 app.get('/customers', function (req, res) {
@@ -27,6 +31,32 @@ app.get('/customers', function (req, res) {
     });
   });
 });
+
+app.post('/register',
+      //only authenticated users can create bands
+      //passport.authenticate('jwt', { session: false }),
+      function (req, res) 
+      {
+        connectio.getConnection(function (err, connection) {
+        //check field filling
+        if(!req.body.Username || !req.body.Password || !req.body.Token || !req.body.Address || !req.body.ContactInfo)
+        {
+            //fields not filled, bad request
+           res.sendStatus(400);
+        }
+
+        /*if('Username' in req.body == false ) {
+          res.sendStatus(400);
+        }*/
+
+        else
+        {
+            //create band if all fields are filled
+            connectio.query('INSERT INTO customer(customerId,Username,Password,Token,Address,ContactInfo)VALUES(?,?,?,?,?,?);',[uuidv4(),req.body.Username, req.body.Password, req.body.Token, req.body.Address, req.body.ContactInfo]);
+            res.sendStatus(201);
+        }
+      });
+    });
 
 
 app.get('/managers', function (req, res) {
