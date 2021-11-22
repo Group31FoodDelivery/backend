@@ -182,13 +182,13 @@ app.post('/Addorders',
       {
         connectio.getConnection(function (err, connection) {
 
-        /*/if(!req.body.Received || !req.body.Preparing || !req.body.Ready_For_Delivery || !req.body.Delivering || !req.body.Delivered || !req.body.Time)
+        if(!req.body.Time)
         {
            res.sendStatus(400);
         }
-        else*/
+        else
         {
-            connectio.query('INSERT INTO orders(orderId,Received,Preparing,Ready_For_Delivery,Delivering,Delivered,Time,customerId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.Received, req.body.Preparing, req.body.Ready_For_Delivery, req.body.Delivering, req.body.Delivered, req.body.Time, req.body.customerId]);
+            connectio.query('INSERT INTO orders(orderId,Received,Preparing,Ready_For_Delivery,Delivering,Delivered,Time,customerId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),false, false, false, false, false, req.body.Time, req.body.customerId]);
             res.sendStatus(201);
         }
       });
