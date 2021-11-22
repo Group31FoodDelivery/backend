@@ -195,6 +195,29 @@ app.post('/Addorders',
     });
 
 
+    app.post('/addMenuItem',
+    //only authenticated users can create bands
+    //passport.authenticate('jwt', { session: false }),
+    function (req, res) 
+    {
+      connectio.getConnection(function (err, connection) {
+      //check field filling
+      if(!req.body.Name || !req.body.Description || !req.body.Price || !req.body.Category)
+      {
+          //fields not filled, bad request
+         res.sendStatus(400);
+      }
+
+      else
+      {
+          //create band if all fields are filled
+          connectio.query('INSERT INTO menuitem(itemId,Name,Description,Price,Image,Category,restaurantId)VALUES(?,?,?,?,?,?,?);',[uuidv4(),req.body.Name, req.body.Description, req.body.Price, req.body.Image, req.body.Category, req.body.restaurantId]);
+          res.sendStatus(201);
+      }
+    });
+  });
+
+
 app.get('/orders/:customerId', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
