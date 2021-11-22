@@ -165,7 +165,7 @@ app.get('/orders', function (req, res) {
     connectio.getConnection(function (err, connection) {
 
     // Executing the MySQL query (select all data from the 'users' table).
-    connectio.query('SELECT * FROM order', function (error, results, fields) {
+    connectio.query('SELECT * FROM orders', function (error, results, fields) {
       // If some error occurs, we throw an error.
       if (error) throw error;
       console.log(error);
@@ -182,13 +182,13 @@ app.post('/Addorders',
       {
         connectio.getConnection(function (err, connection) {
 
-        if(!req.body.Received || !req.body.Preparing || !req.body.Ready_For_Delivery || !req.body.Delivering || !req.body.Delivered || !req.body.Time)
+        /*/if(!req.body.Received || !req.body.Preparing || !req.body.Ready_For_Delivery || !req.body.Delivering || !req.body.Delivered || !req.body.Time)
         {
            res.sendStatus(400);
         }
-        else
+        else*/
         {
-            connectio.query('INSERT INTO order(orderId,Received,Preparing,Ready_For_Delivery,Delivering,Delivered,Time,customerId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.Received, req.body.Preparing, req.body.Ready_For_Delivery, req.body.Delivering, req.body.Delivered, req.body.Time, "62f5f340-aa0b-4c3a-9dde-fd895e2eb7b6"]);
+            connectio.query('INSERT INTO orders(orderId,Received,Preparing,Ready_For_Delivery,Delivering,Delivered,Time,customerId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.Received, req.body.Preparing, req.body.Ready_For_Delivery, req.body.Delivering, req.body.Delivered, req.body.Time, req.body.customerId]);
             res.sendStatus(201);
         }
       });
@@ -200,7 +200,7 @@ app.get('/orders/:customerId', function (req, res) {
     connectio.getConnection(function (err, connection) {
 
     // Executing the MySQL query (select all data from the 'users' table).
-    connectio.query('SELECT * FROM order WHERE customerId = ?',[req.params.customerId], function (error, results, fields) {
+    connectio.query('SELECT * FROM orders WHERE customerId = ?',[req.params.customerId], function (error, results, fields) {
       // If some error occurs, we throw an error.
       if (error) throw error;
       console.log(error);
