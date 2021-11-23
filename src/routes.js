@@ -2,12 +2,17 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const { v4: uuidv4 } = require('uuid');
+<<<<<<< HEAD
 const passport = require('passport');
 const managers = require('./modules/users');
 const bcrypt = require('bcryptjs');
 
 const BasicStrategy = require('passport-http').BasicStrategy;
 
+=======
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/'})
+>>>>>>> 55f86473be8e8296326727285b00fc067b7d0852
  
 const connectio = mysql.createPool({
   host     : 'yummygo.mysql.database.azure.com',
@@ -228,6 +233,18 @@ app.post('/restaurants',
         }
       });
     });
+
+
+app.post('/restaurants/images',upload.single('kuva') , function (req, res, next){
+
+
+console.log(req.file);
+console.log(req.file.filename);
+res.sendStatus(200);
+
+
+});
+
 
 
     app.post('/registerManager',
