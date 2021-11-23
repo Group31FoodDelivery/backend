@@ -2,6 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const { v4: uuidv4 } = require('uuid');
+const passport = require('passport');
+const managers = require('./modules/users');
+const bcrypt = require('bcryptjs');
+
+const BasicStrategy = require('passport-http').BasicStrategy;
+
  
 const connectio = mysql.createPool({
   host     : 'yummygo.mysql.database.azure.com',
@@ -15,6 +21,128 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+let ContactInfo, Password;
+
+passport.use(new BasicStrategy(
+  //let manager ={};
+  //console.log(manager);
+    /*connectio.getConnection(function (err, connection) {
+
+      // Executing the MySQL query (select all data from the 'users' table).
+      connectio.query('SELECT * FROM manager', function (error, results, fields) {
+        // If some error occurs, we throw an error.
+        if (error) throw error;
+        console.log(error);
+        // Getting the 'response' from the database and sending it to our route. This is were the data is.
+      ContactInfo = results.ContactInfo;
+      Password = results.Password;
+      });
+    }),*/
+       
+  function (ContactInfo, Password, done) {
+    const manager = managers.getUserByName(ContactInfo);
+    console.log(manager.ContactInfo);
+    if(manager == undefined) {
+      // Username not found
+      console.log("HTTP Basic username not found");
+      return done(null, false, { message: "HTTP Basic username not found" });
+    }
+
+    /* Verify password match */
+    if(bcrypt.compareSync(Password, manager.Password) == false) {
+      // Password does not match
+      console.log("HTTP Basic password not matching username");
+      return done(null, false, { message: "HTTP Basic password not found" });
+    }
+    return done(null, manager);
+  }
+  ));
+
+const jwt = require('jsonwebtoken');
+const JwtStrategy = require('passport-jwt').Strategy,
+      ExtractJwt = require('passport-jwt').ExtractJwt;
+let jwtSecretKey = null;
+if(process.env.JWTKEY === undefined) {
+  jwtSecretKey = require('./jwt-key.json').secret;
+} else {
+  jwtSecretKey = process.env.JWTKEY;
+}
+
+
+let options = {}
+
+/* Configure the passport-jwt module to expect JWT
+   in headers from Authorization field as Bearer token */
+options.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+
+/* This is the secret signing key.
+   You should NEVER store it in code  */
+options.secretOrKey = jwtSecretKey;
+
+passport.use(new JwtStrategy(options, function(jwt_payload, done) {
+  console.log("Processing JWT payload for token content:");
+  console.log(jwt_payload);
+
+
+  const now = Date.now() / 1000;
+  if(jwt_payload.exp > now) {
+    done(null, jwt_payload.user);
+  }
+  else {// expired
+    done(null, false);
+  }
+}));
+
+
+app.get(
+  '/jwtProtectedResource',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    console.log("jwt");
+    res.json(
+      {
+        status: "Successfully accessed protected resource with JWT",
+        user: req.user
+      }
+    );
+  }
+);
+
+/*app.post('/loginForJWT', passport.authenticate('basic', {
+  session: false
+}), (req, res) => {
+  console.log("Hello");
+
+  res.send('ok');
+});*/
+
+app.post(
+  '/loginForJWT',
+  passport.authenticate('basic', { session: false }),
+  (req, res) => {
+    console.log("In post");
+    const body = {
+      managerId : req.user.managerId,
+      Firstname: req.user.Firstname
+    };
+    console.log(body);
+
+    const payload = {
+      manager : body
+    };
+
+    const options = {
+      expiresIn: '1d'
+    }
+
+    /* Sign the token with payload, key and options.
+       Detailed documentation of the signing here:
+       https://github.com/auth0/node-jsonwebtoken#readme */
+    const token = jwt.sign(payload, jwtSecretKey, options);
+
+    return res.json({ token });
+  })
 
 // Creating a GET route that returns data from the 'users' table.
 app.get('/customers', function (req, res) {
@@ -109,7 +237,7 @@ app.post('/restaurants',
     {
       connectio.getConnection(function (err, connection) {
       //check field filling
-      if(!req.body.Firstname || !req.body.Surname || !req.body.Password || !req.body.Token || !req.body.Address || !req.body.ContactInfo)
+      if(!req.body.Firstname || !req.body.Surname || !req.body.Password || !req.body.Address || !req.body.ContactInfo)
       {
           //fields not filled, bad request
          res.sendStatus(400);
