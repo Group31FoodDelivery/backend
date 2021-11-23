@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const { v4: uuidv4 } = require('uuid');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/'})
  
 const connectio = mysql.createPool({
   host     : 'yummygo.mysql.database.azure.com',
@@ -100,6 +102,18 @@ app.post('/restaurants',
         }
       });
     });
+
+
+app.post('/restaurants/images',upload.single('kuva') , function (req, res, next){
+
+
+console.log(req.file);
+console.log(req.file.filename);
+res.sendStatus(200);
+
+
+});
+
 
 
     app.post('/registerManager',
