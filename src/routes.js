@@ -24,7 +24,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-let ContactInfo, Password;
+//let ContactInfo, Password;
 
 passport.use(new BasicStrategy(
   //let manager ={};
@@ -44,7 +44,7 @@ passport.use(new BasicStrategy(
        
   function (ContactInfo, Password, done) {
     const manager = managers.getUserByName(ContactInfo);
-    console.log(manager.ContactInfo);
+    //console.log(manager.ContactInfo);
     if(manager == undefined) {
       // Username not found
       console.log("HTTP Basic username not found");
@@ -169,7 +169,7 @@ app.post('/register',
       {
         connectio.getConnection(function (err, connection) {
         //check field filling
-        if(!req.body.Username || !req.body.Password || !req.body.Token || !req.body.Address || !req.body.ContactInfo)
+        if(!req.body.Username || !req.body.Password || !req.body.Address || !req.body.ContactInfo)
         {
             //fields not filled, bad request
            res.sendStatus(400);
@@ -181,8 +181,9 @@ app.post('/register',
 
         else
         {
-            //create band if all fields are filled
-            connectio.query('INSERT INTO customer(customerId,Username,Password,Token,Address,ContactInfo)VALUES(?,?,?,?,?,?);',[uuidv4(),req.body.Username, req.body.Password, req.body.Token, req.body.Address, req.body.ContactInfo]);
+            const salt = bcrypt.genSaltSync(6);
+            const hashedPassword = bcrypt.hashSync(req.body.Password, salt);
+            connectio.query('INSERT INTO customer(customerId,Username,Password,Token,Address,ContactInfo)VALUES(?,?,?,?,?,?);',[uuidv4(),req.body.Username, hashedPassword, req.body.Token, req.body.Address, req.body.ContactInfo]);
             res.sendStatus(201);
         }
       });

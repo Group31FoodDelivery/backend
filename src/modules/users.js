@@ -1,6 +1,7 @@
 const mydb = require('./mydb')
 const express = require('express');
 
+
 //functions of User2 for users.js:
 module.exports = {
 
