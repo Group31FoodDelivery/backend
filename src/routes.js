@@ -146,12 +146,12 @@ app.post(
     return res.json({ token });
   })
 
-// Creating a GET route that returns data from the 'users' table.
+// Creating a GET route that returns data from the 'customers' table.
 app.get('/customers', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
 
-    // Executing the MySQL query (select all data from the 'users' table).
+    // Executing the MySQL query (select all data from the 'customers' table).
     connectio.query('SELECT * FROM customer', function (error, results, fields) {
       // If some error occurs, we throw an error.
       if (error) throw error;
@@ -163,7 +163,7 @@ app.get('/customers', function (req, res) {
 });
 
 app.post('/register',
-      //only authenticated users can create bands
+      //customer registration
       //passport.authenticate('jwt', { session: false }),
       function (req, res) 
       {
@@ -174,10 +174,6 @@ app.post('/register',
             //fields not filled, bad request
            res.sendStatus(400);
         }
-
-        /*if('Username' in req.body == false ) {
-          res.sendStatus(400);
-        }*/
 
         else
         {
@@ -194,7 +190,7 @@ app.get('/managers', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
 
-    // Executing the MySQL query (select all data from the 'users' table).
+    // Executing the MySQL query (select all data from the 'manager' table).
     connectio.query('SELECT * FROM manager', function (error, results, fields) {
       // If some error occurs, we throw an error.
       if (error) throw error;
@@ -207,7 +203,7 @@ app.get('/managers', function (req, res) {
 
 
 app.post('/restaurants',
-      //only authenticated users can create bands
+      //only managers can create bands
       //passport.authenticate('jwt', { session: false }),
       function (req, res) 
       {
@@ -225,7 +221,6 @@ app.post('/restaurants',
 
         else
         {
-            //create band if all fields are filled
             connectio.query('INSERT INTO restaurant(restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,managerId)VALUES(?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, req.body.managerId]);
             res.sendStatus(201);
         }
@@ -246,7 +241,7 @@ res.sendStatus(200);
 
 
     app.post('/registerManager',
-    //only authenticated users can create bands
+    //manager registration
     //passport.authenticate('jwt', { session: false }),
     function (req, res) 
     {
@@ -266,7 +261,7 @@ res.sendStatus(200);
       {
           const salt = bcrypt.genSaltSync(6);
           const hashedPassword = bcrypt.hashSync(req.body.Password, salt);
-          //create band if all fields are filled
+          //manager is registered if all fields are filled
           connectio.query('INSERT INTO manager(managerId,Firstname,Surname,Address,ContactInfo,Token,Password)VALUES(?,?,?,?,?,?,?);',[uuidv4(),req.body.Firstname, req.body.Surname, req.body.Address, req.body.ContactInfo, req.body.Token, hashedPassword]);
           res.sendStatus(201);
       }
@@ -277,7 +272,7 @@ app.get('/restaurants', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
 
-    // Executing the MySQL query (select all data from the 'users' table).
+    // Executing the MySQL query (select all data from the 'restaurant' table).
     connectio.query('SELECT * FROM restaurant', function (error, results, fields) {
       // If some error occurs, we throw an error.
       if (error) throw error;
@@ -293,7 +288,7 @@ app.get('/menuitems', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
 
-    // Executing the MySQL query (select all data from the 'users' table).
+    // Executing the MySQL query (select all data from the 'menuitem' table).
     connectio.query('SELECT * FROM menuitem', function (error, results, fields) {
       // If some error occurs, we throw an error.
       if (error) throw error;
@@ -309,7 +304,7 @@ app.get('/orders', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
 
-    // Executing the MySQL query (select all data from the 'users' table).
+    // Executing the MySQL query (select all data from the 'orders' table).
     connectio.query('SELECT * FROM orders', function (error, results, fields) {
       // If some error occurs, we throw an error.
       if (error) throw error;
@@ -341,7 +336,7 @@ app.post('/Addorders',
 
 
     app.post('/addMenuItem',
-    //only authenticated users can create bands
+    //only managers can create bands
     //passport.authenticate('jwt', { session: false }),
     function (req, res) 
     {
@@ -355,7 +350,6 @@ app.post('/Addorders',
 
       else
       {
-          //create band if all fields are filled
           connectio.query('INSERT INTO menuitem(itemId,Name,Description,Price,Image,Category,restaurantId)VALUES(?,?,?,?,?,?,?);',[uuidv4(),req.body.Name, req.body.Description, req.body.Price, req.body.Image, req.body.Category, req.body.restaurantId]);
           res.sendStatus(201);
       }
@@ -367,7 +361,7 @@ app.get('/orders/:customerId', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
 
-    // Executing the MySQL query (select all data from the 'users' table).
+    // Executing a MySQL query to find specific customers orders
     connectio.query('SELECT * FROM orders WHERE customerId = ?',[req.params.customerId], function (error, results, fields) {
       // If some error occurs, we throw an error.
       if (error) throw error;
@@ -383,7 +377,7 @@ app.get('/restaurants/menuitem/:restaurantId', function (req, res) {
     // Connecting to the database.
     connectio.getConnection(function (err, connection) {
 
-    // Executing the MySQL query (select all data from the 'users' table).
+    // Executing the MySQL query to find all menuitems of a specific restaurant.
     connectio.query('SELECT * FROM menuitem WHERE restaurantId = ?',[req.params.restaurantId], function (error, results, fields) {
       // If some error occurs, we throw an error.
       if (error) throw error;
