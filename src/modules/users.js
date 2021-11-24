@@ -15,9 +15,14 @@ module.exports = {
     //console.log(results);
     
     results2= results.find(u => u.ContactInfo == ContactInfo)
-    ContactInfo2 = results2.ContactInfo;
+    if (results2 == undefined) {
+      ContactInfo2 = undefined;
+    } else {
+      ContactInfo2 = results2.ContactInfo;
+    }
+    
 
-    if (ContactInfo2 == ContactInfo)
+    if (ContactInfo2 == ContactInfo || results2 != undefined)
     {
       console.log("going back");
       //console.log(results2);

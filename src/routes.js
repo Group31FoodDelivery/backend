@@ -28,27 +28,10 @@ app.use(passport.initialize());
 //let ContactInfo, Password;
 
 passport.use(new BasicStrategy(
-  //let manager ={};
-  //console.log(manager);
-    /*connectio.getConnection(function (err, connection) {
-
-      // Executing the MySQL query (select all data from the 'users' table).
-      connectio.query('SELECT * FROM manager', function (error, results, fields) {
-        // If some error occurs, we throw an error.
-        if (error) throw error;
-        console.log(error);
-        // Getting the 'response' from the database and sending it to our route. This is were the data is.
-      ContactInfo = results.ContactInfo;
-      Password = results.Password;
-      });
-    }),*/
-       
+  
   async function (ContactInfo, Password, done) { try {
-    const managerUser = await manager.getUserByName(ContactInfo/*,function(err, result*/) 
-      /*if (err) {
-        console.log(err);
-      } else {
-        //console.log(result);*/
+    const managerUser = await manager.getUserByName(ContactInfo) 
+
         if(managerUser == undefined) {
           // Username not found
           console.log("HTTP Basic username not found");
@@ -71,22 +54,6 @@ passport.use(new BasicStrategy(
         console.log(error);
       }
     }));
-    //console.log(manager.ContactInfo);
-    /*if(manager == undefined) {
-      // Username not found
-      console.log("HTTP Basic username not found");
-      return done(null, false, { message: "HTTP Basic username not found" });
-    }
-
-    /* Verify password match */
-    /*if(bcrypt.compareSync(Password, manager.Password) == false) {
-      // Password does not match
-      console.log("HTTP Basic password not matching username");
-      return done(null, false, { message: "HTTP Basic password not found" });
-    }
-    return done(null, manager);
-  }
-))}));*/
 
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy,
