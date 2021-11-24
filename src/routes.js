@@ -2,17 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const { v4: uuidv4 } = require('uuid');
-<<<<<<< HEAD
 const passport = require('passport');
 const managers = require('./modules/users');
 const bcrypt = require('bcryptjs');
 
 const BasicStrategy = require('passport-http').BasicStrategy;
 
-=======
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/'})
->>>>>>> 55f86473be8e8296326727285b00fc067b7d0852
  
 const connectio = mysql.createPool({
   host     : 'yummygo.mysql.database.azure.com',
@@ -266,8 +263,10 @@ res.sendStatus(200);
 
       else
       {
+          const salt = bcrypt.genSaltSync(6);
+          const hashedPassword = bcrypt.hashSync(req.body.Password, salt);
           //create band if all fields are filled
-          connectio.query('INSERT INTO manager(managerId,Firstname,Surname,Address,ContactInfo,Token,Password)VALUES(?,?,?,?,?,?,?);',[uuidv4(),req.body.Firstname, req.body.Surname, req.body.Address, req.body.ContactInfo, req.body.Token, req.body.Password]);
+          connectio.query('INSERT INTO manager(managerId,Firstname,Surname,Address,ContactInfo,Token,Password)VALUES(?,?,?,?,?,?,?);',[uuidv4(),req.body.Firstname, req.body.Surname, req.body.Address, req.body.ContactInfo, req.body.Token, hashedPassword]);
           res.sendStatus(201);
       }
     });
