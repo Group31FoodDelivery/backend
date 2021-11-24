@@ -11,7 +11,8 @@ module.exports = {
     var results2;
     var ContactInfo2;
     
-    var results = await mydb.query('SELECT * FROM managers;');
+    var results = await mydb.query('SELECT * FROM manager;');
+    //console.log(results);
     
     results2= results.find(u => u.ContactInfo == ContactInfo)
     ContactInfo2 = results2.ContactInfo;
@@ -19,7 +20,7 @@ module.exports = {
     if (ContactInfo2 == ContactInfo)
     {
       console.log("going back");
-      console.log(results2);
+      //console.log(results2);
       return results2;
     }
     else

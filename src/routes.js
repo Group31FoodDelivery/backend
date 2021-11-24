@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const { v4: uuidv4 } = require('uuid');
 const passport = require('passport');
-const managers = require('./modules/users');
+const manager = require('./modules/users');
 const bcrypt = require('bcryptjs');
 
 const BasicStrategy = require('passport-http').BasicStrategy;
@@ -23,6 +23,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(passport.initialize());
 
 //let ContactInfo, Password;
 
@@ -42,24 +43,50 @@ passport.use(new BasicStrategy(
       });
     }),*/
        
-  function (ContactInfo, Password, done) {
-    const manager = managers.getUserByName(ContactInfo);
+  async function (ContactInfo, Password, done) { try {
+    const managerUser = await manager.getUserByName(ContactInfo/*,function(err, result*/) 
+      /*if (err) {
+        console.log(err);
+      } else {
+        //console.log(result);*/
+        if(managerUser == undefined) {
+          // Username not found
+          console.log("HTTP Basic username not found");
+          return done(null, false, { message: "HTTP Basic username not found" });
+        }
+        console.log("nimitarkistus ohi");
+        /* Verify password match */
+        if(bcrypt.compareSync(Password, managerUser.Password) == false) {
+          // Password does not match
+          console.log("HTTP Basic password not matching username");
+          return done(null, false, { message: "HTTP Basic password not found" });
+        }
+        console.log("Läpi");
+        console.log(managerUser);
+        const finalManager = {managerId: managerUser.managerId, Firstname: managerUser.Firstname};
+
+        return done(null, finalManager);
+      }
+      catch(error) {
+        console.log(error);
+      }
+    }));
     //console.log(manager.ContactInfo);
-    if(manager == undefined) {
+    /*if(manager == undefined) {
       // Username not found
       console.log("HTTP Basic username not found");
       return done(null, false, { message: "HTTP Basic username not found" });
     }
 
     /* Verify password match */
-    if(bcrypt.compareSync(Password, manager.Password) == false) {
+    /*if(bcrypt.compareSync(Password, manager.Password) == false) {
       // Password does not match
       console.log("HTTP Basic password not matching username");
       return done(null, false, { message: "HTTP Basic password not found" });
     }
     return done(null, manager);
   }
-  ));
+))}));*/
 
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy,
