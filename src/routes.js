@@ -29,23 +29,11 @@ app.use(passport.initialize());
 //let ContactInfo, Password;
 
 passport.use(new BasicStrategy(
-  //let manager ={};
-  //console.log(manager);
-    /*connectio.getConnection(function (err, connection) {
 
-      // Executing the MySQL query (select all data from the 'users' table).
-      connectio.query('SELECT * FROM manager', function (error, results, fields) {
-        // If some error occurs, we throw an error.
-        if (error) throw error;
-        console.log(error);
-        // Getting the 'response' from the database and sending it to our route. This is were the data is.
-      ContactInfo = results.ContactInfo;
-      Password = results.Password;
-      });
-    }),*/
-  async function (ContactInfo, Password, done) { 
-    try {
-    const managerUser = await manager.getUserByName(ContactInfo/*,function(err, result*/) 
+  
+  async function (ContactInfo, Password, done) { try {
+    const managerUser = await manager.getUserByName(ContactInfo) 
+
 
         if(managerUser == undefined) {
           // Username not found
@@ -70,7 +58,7 @@ passport.use(new BasicStrategy(
         console.log(error);
       }
     }));
-  
+
 
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy,
@@ -89,6 +77,7 @@ let options = {}
    in headers from Authorization field as Bearer token */
 options.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 
+
 /* This is the secret signing key.
    You should NEVER store it in code  */
 options.secretOrKey = jwtSecretKey;
@@ -100,7 +89,7 @@ passport.use(new JwtStrategy(options, function(jwt_payload, done) {
 
   const now = Date.now() / 1000;
   if(jwt_payload.exp > now) {
-    done(null, jwt_payload.user);
+    done(null, jwt_payload.manager);
   }
   else {// expired
     done(null, false);
@@ -235,9 +224,9 @@ app.get('/managers', function (req, res) {
 
 
 
-app.post('/restaurants/images',upload.single('kuva') , function (req, res, next){
+app.put('/restaurants/images/:restaurantId',upload.single('kuva') , function (req, res, next){
 
-
+connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?',[req.file.filename, req.params.restaurantId]);
 console.log(req.file);
 console.log(req.file.filename);
 res.sendStatus(200);
@@ -363,9 +352,9 @@ app.post('/Addorders',
     });
 
 
-    app.post('/addMenuItem',
+    app.post('/addMenuItem/:restaurantId',
     //only managers can create bands
-    //passport.authenticate('jwt', { session: false }),
+    passport.authenticate('jwt', { session: false }),
     function (req, res) 
     {
       connectio.getConnection(function (err, connection) {
@@ -378,7 +367,7 @@ app.post('/Addorders',
 
       else
       {
-          connectio.query('INSERT INTO menuitem(itemId,Name,Description,Price,Image,Category,restaurantId)VALUES(?,?,?,?,?,?,?);',[uuidv4(),req.body.Name, req.body.Description, req.body.Price, req.body.Image, req.body.Category, req.body.restaurantId]);
+          connectio.query('INSERT INTO menuitem(itemId,Name,Description,Price,Image,Category,amount,restaurantId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.Name, req.body.Description, req.body.Price, req.body.Image, req.body.Category, 0, req.params.restaurantId]);
           res.sendStatus(201);
       }
     });
