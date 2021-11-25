@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const passport = require('passport');
 const manager = require('./modules/users');
 const bcrypt = require('bcryptjs');
+const customer = require('./modules/users');
 
 const BasicStrategy = require('passport-http').BasicStrategy;
 
@@ -42,13 +43,10 @@ passport.use(new BasicStrategy(
       Password = results.Password;
       });
     }),*/
-       
-  async function (ContactInfo, Password, done) { try {
+  async function (ContactInfo, Password, done) { 
+    try {
     const managerUser = await manager.getUserByName(ContactInfo/*,function(err, result*/) 
-      /*if (err) {
-        console.log(err);
-      } else {
-        //console.log(result);*/
+
         if(managerUser == undefined) {
           // Username not found
           console.log("HTTP Basic username not found");
@@ -67,26 +65,12 @@ passport.use(new BasicStrategy(
 
         return done(null, finalManager);
       }
+
       catch(error) {
         console.log(error);
       }
     }));
-    //console.log(manager.ContactInfo);
-    /*if(manager == undefined) {
-      // Username not found
-      console.log("HTTP Basic username not found");
-      return done(null, false, { message: "HTTP Basic username not found" });
-    }
-
-    /* Verify password match */
-    /*if(bcrypt.compareSync(Password, manager.Password) == false) {
-      // Password does not match
-      console.log("HTTP Basic password not matching username");
-      return done(null, false, { message: "HTTP Basic password not found" });
-    }
-    return done(null, manager);
-  }
-))}));*/
+  
 
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy,
@@ -138,13 +122,6 @@ app.get(
   }
 );
 
-/*app.post('/loginForJWT', passport.authenticate('basic', {
-  session: false
-}), (req, res) => {
-  console.log("Hello");
-
-  res.send('ok');
-});*/
 
 app.post(
   '/loginForJWT',
@@ -172,6 +149,33 @@ app.post(
 
     return res.json({ token });
   })
+
+  app.post(
+    '/loginForJWTCustomer',
+    passport.authenticate('basic', { session: false }),
+    (req, res) => {
+      console.log("In post");
+      const body = {
+        customerId : req.user.customerId,
+        Username: req.user.Username
+      };
+      console.log(body);
+  
+      const payload = {
+        manager : body
+      };
+  
+      const options = {
+        expiresIn: '1d'
+      }
+  
+      /* Sign the token with payload, key and options.
+         Detailed documentation of the signing here:
+         https://github.com/auth0/node-jsonwebtoken#readme */
+      const token = jwt.sign(payload, jwtSecretKey, options);
+  
+      return res.json({ token });
+    })
 
 // Creating a GET route that returns data from the 'customers' table.
 app.get('/customers', function (req, res) {
@@ -229,30 +233,6 @@ app.get('/managers', function (req, res) {
 });
 
 
-app.post('/restaurants',
-      //only managers can create bands
-      //passport.authenticate('jwt', { session: false }),
-      function (req, res) 
-      {
-        connectio.getConnection(function (err, connection) {
-        //check field filling
-        if(!req.body.Name  || !req.body.Type || !req.body.OperatingHours || !req.body.Price_level || !req.body.Rating || !req.body.Address || !req.body.Description)
-        {
-            //fields not filled, bad request
-           res.sendStatus(400);
-        }
-
-        /*if('Username' in req.body == false ) {
-          res.sendStatus(400);
-        }*/
-
-        else
-        {
-            connectio.query('INSERT INTO restaurant(restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,managerId)VALUES(?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, req.body.managerId]);
-            res.sendStatus(201);
-        }
-      });
-    });
 
 
 app.post('/restaurants/images',upload.single('kuva') , function (req, res, next){
@@ -309,6 +289,27 @@ app.get('/restaurants', function (req, res) {
     });
   });
 });
+
+app.post('/restaurants',
+      //only managers can create restaurants
+      passport.authenticate('jwt', { session: false }),
+      function (req, res) 
+      {
+        connectio.getConnection(function (err, connection) {
+        //check field filling
+        if(!req.body.Name  || !req.body.Type || !req.body.OperatingHours || !req.body.Price_level || !req.body.Rating || !req.body.Address || !req.body.Description || req.body.Image)
+        {
+            //fields not filled, bad request
+           res.sendStatus(400);
+        }
+
+        else
+        {
+            connectio.query('INSERT INTO restaurant (restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,Image,managerId)VALUES(?,?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, req.body.Image, req.user.managerId]);
+            res.sendStatus(201);
+        }
+      });
+    });
 
 
 app.get('/menuitems', function (req, res) {

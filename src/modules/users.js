@@ -28,6 +28,28 @@ module.exports = {
       return undefined;
     }
   },
+  getCustomerByName: async function(Username)
+  {
+    var results2;
+    var Username2;
+    
+    var results = await mydb.query('SELECT * FROM customer;');
+    //console.log(results);
+    
+    results2= results.find(u => u.Username == Username)
+    Username2 = results2.Username;
+
+    if (Username2 == Username)
+    {
+      console.log("going back");
+      //console.log(results2);
+      return results2;
+    }
+    else
+    {
+      return undefined;
+    }
+  },
 
 
   //function used to get users by username (uses the mighty callback method):
@@ -52,4 +74,17 @@ module.exports = {
     ,[username,password,name,email,phoneNumber]);
     console.log("201,created");
   }*/
+
+getCustomerByUsername(Username, callback)
+{
+  mydb.query('SELECT * FROM customer WHERE Username = ?', [Username], function(err, result)
+  {
+    if (err)
+    callback(err,null);
+    else{
+      callback(null, result[0]);
+    }
+
+  });
+}
 }
