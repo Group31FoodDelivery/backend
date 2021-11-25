@@ -72,6 +72,7 @@ let options = {}
    in headers from Authorization field as Bearer token */
 options.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 
+
 /* This is the secret signing key.
    You should NEVER store it in code  */
 options.secretOrKey = jwtSecretKey;
@@ -83,7 +84,7 @@ passport.use(new JwtStrategy(options, function(jwt_payload, done) {
 
   const now = Date.now() / 1000;
   if(jwt_payload.exp > now) {
-    done(null, jwt_payload.user);
+    done(null, jwt_payload.manager);
   }
   else {// expired
     done(null, false);
@@ -211,14 +212,14 @@ app.post('/restaurants',
 
         else
         {
-            connectio.query('INSERT INTO restaurant (restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,Image,managerId)VALUES(?,?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, req.body.Image, req.body.managerId]);
+            connectio.query('INSERT INTO restaurant (restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,Image,managerId)VALUES(?,?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, req.body.Image, req.user.managerId]);
             res.sendStatus(201);
         }
       });
     });
 
 
-app.post('/restaurants/images/:restaurantId',upload.single('kuva') , function (req, res, next){
+app.put('/restaurants/images/:restaurantId',upload.single('kuva') , function (req, res, next){
 
 connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?',[req.file.filename, req.params.restaurantId]);
 console.log(req.file);
@@ -325,9 +326,9 @@ app.post('/Addorders',
     });
 
 
-    app.post('/addMenuItem',
+    app.post('/addMenuItem/:restaurantId',
     //only managers can create bands
-    //passport.authenticate('jwt', { session: false }),
+    passport.authenticate('jwt', { session: false }),
     function (req, res) 
     {
       connectio.getConnection(function (err, connection) {
@@ -340,7 +341,7 @@ app.post('/Addorders',
 
       else
       {
-          connectio.query('INSERT INTO menuitem(itemId,Name,Description,Price,Image,Category,restaurantId)VALUES(?,?,?,?,?,?,?);',[uuidv4(),req.body.Name, req.body.Description, req.body.Price, req.body.Image, req.body.Category, req.body.restaurantId]);
+          connectio.query('INSERT INTO menuitem(itemId,Name,Description,Price,Image,Category,amount,restaurantId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.Name, req.body.Description, req.body.Price, req.body.Image, req.body.Category, 0, req.params.restaurantId]);
           res.sendStatus(201);
       }
     });
