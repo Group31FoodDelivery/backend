@@ -197,34 +197,30 @@ app.get('/managers', function (req, res) {
 
 
 app.post('/restaurants',
-      //only managers can create bands
-      //passport.authenticate('jwt', { session: false }),
+      //only managers can create restaurants
+      passport.authenticate('jwt', { session: false }),
       function (req, res) 
       {
         connectio.getConnection(function (err, connection) {
         //check field filling
-        if(!req.body.Name  || !req.body.Type || !req.body.OperatingHours || !req.body.Price_level || !req.body.Rating || !req.body.Address || !req.body.Description)
+        if(!req.body.Name  || !req.body.Type || !req.body.OperatingHours || !req.body.Price_level || !req.body.Rating || !req.body.Address || !req.body.Description || req.body.Image)
         {
             //fields not filled, bad request
            res.sendStatus(400);
         }
 
-        /*if('Username' in req.body == false ) {
-          res.sendStatus(400);
-        }*/
-
         else
         {
-            connectio.query('INSERT INTO restaurant(restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,managerId)VALUES(?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, req.body.managerId]);
+            connectio.query('INSERT INTO restaurant (restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,Image,managerId)VALUES(?,?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, req.body.Image, req.body.managerId]);
             res.sendStatus(201);
         }
       });
     });
 
 
-app.post('/restaurants/images',upload.single('kuva') , function (req, res, next){
+app.post('/restaurants/images/:restaurantId',upload.single('kuva') , function (req, res, next){
 
-
+connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?',[req.file.filename, req.params.restaurantId]);
 console.log(req.file);
 console.log(req.file.filename);
 res.sendStatus(200);
