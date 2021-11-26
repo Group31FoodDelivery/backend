@@ -30,6 +30,60 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 
 
+
+const jwt = require('jsonwebtoken');
+const JwtStrategy = require('passport-jwt').Strategy,
+      ExtractJwt = require('passport-jwt').ExtractJwt;
+let jwtSecretKey = null;
+if(process.env.JWTKEY === undefined) {
+  jwtSecretKey = require('./jwt-key.json').secret;
+} else {
+  jwtSecretKey = process.env.JWTKEY;
+}
+
+
+let options = {}
+
+/* Configure the passport-jwt module to expect JWT
+   in headers from Authorization field as Bearer token */
+options.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+
+
+/* This is the secret signing key.
+   You should NEVER store it in code  */
+options.secretOrKey = jwtSecretKey;
+
+passport.use(new JwtStrategy(options, function(jwt_payload, done) {
+  console.log("Processing JWT payload for token content:");
+  console.log(jwt_payload);
+
+
+  const now = Date.now() / 1000;
+  if(jwt_payload.exp > now) {
+    done(null, jwt_payload.manager);
+  }
+  else {// expired
+    done(null, false);
+  }
+}));
+
+
+app.get(
+  '/jwtProtectedResource',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    console.log("jwt");
+    res.json(
+      {
+        status: "Successfully accessed protected resource with JWT",
+        user: req.user
+      }
+    );
+  }
+);
+
+
+
 passport.use(new BasicStrategy(
 
 
@@ -52,6 +106,10 @@ passport.use(new BasicStrategy(
           console.log(customerUser.Password)
           /* Verify password match */
           console.log(Password)
+
+          
+
+
           if(bcrypt.compareSync(Password, customerUser.Password) == false) {
             // Password does not match
             console.log("HTTP Basic password not matching username");
@@ -59,7 +117,7 @@ passport.use(new BasicStrategy(
           }
           console.log("Läpi");
           console.log(customerUser);
-          const finalCustomer = {customerId: customerUser.customerId, FUsername: customerUser.Username};
+          const finalCustomer = {customerId: customerUser.customerId, Username: customerUser.Username};
   
           return done(null, finalCustomer);
         
@@ -74,7 +132,7 @@ passport.use(new BasicStrategy(
 
 
 app.post(
-'/loginForJWT',
+'/loginForcustomer',
  passport.authenticate('basic', { session: false }),
  (req, res) => {
    console.log("In post");

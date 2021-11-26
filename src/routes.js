@@ -42,6 +42,7 @@ passport.use(new BasicStrategy(
         }
         console.log("nimitarkistus ohi");
         /* Verify password match */
+        console.log(Password);
         if(bcrypt.compareSync(Password, managerUser.Password) == false) {
           // Password does not match
           console.log("HTTP Basic password not matching username");
