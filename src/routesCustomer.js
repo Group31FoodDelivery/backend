@@ -60,7 +60,7 @@ passport.use(new JwtStrategy(options, function(jwt_payload, done) {
 
   const now = Date.now() / 1000;
   if(jwt_payload.exp > now) {
-    done(null, jwt_payload.manager);
+    done(null, jwt_payload.customer);
   }
   else {// expired
     done(null, false);
@@ -191,6 +191,40 @@ app.post('/register',
             const salt = bcrypt.genSaltSync(6);
             const hashedPassword = bcrypt.hashSync(req.body.Password, salt);
             connectio.query('INSERT INTO customer(customerId,Username,Password,Token,Address,ContactInfo)VALUES(?,?,?,?,?,?);',[uuidv4(),req.body.Username, hashedPassword, req.body.Token, req.body.Address, req.body.ContactInfo]);
+            res.sendStatus(201);
+        }
+      });
+    });
+
+    app.get('/orders/:customerId', function (req, res) {
+      // Connecting to the database.
+      connectio.getConnection(function (err, connection) {
+  
+      // Executing a MySQL query to find specific customers orders
+      connectio.query('SELECT * FROM orders WHERE customerId = ?',[req.params.customerId], function (error, results, fields) {
+        // If some error occurs, we throw an error.
+        if (error) throw error;
+        console.log(error);
+        // Getting the 'response' from the database and sending it to our route. This is were the data is.
+        res.send(results)
+      });
+    });
+  });
+
+
+app.post('/Addorders',
+      passport.authenticate('jwt', { session: false }),
+      function (req, res) 
+      {
+        connectio.getConnection(function (err, connection) {
+
+        if(!req.body.Time)
+        {
+           res.sendStatus(400);
+        }
+        else
+        {
+            connectio.query('INSERT INTO orders(orderId,Received,Preparing,Ready_For_Delivery,Delivering,Delivered,Time,customerId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),false, false, false, false, false, req.body.Time, req.user.customerId]);
             res.sendStatus(201);
         }
       });

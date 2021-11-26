@@ -183,7 +183,7 @@ app.get('/customers', function (req, res) {
   });
 });
 
-app.post('/register',
+/*app.post('/register',
       //customer registration
       //passport.authenticate('jwt', { session: false }),
       function (req, res) 
@@ -204,7 +204,7 @@ app.post('/register',
             res.sendStatus(201);
         }
       });
-    });
+    });*/
 
 
 app.get('/managers', function (req, res) {
