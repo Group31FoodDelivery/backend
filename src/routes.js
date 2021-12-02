@@ -6,6 +6,7 @@ const passport = require('passport');
 const manager = require('./modules/users');
 const bcrypt = require('bcryptjs');
 const customer = require('./modules/users');
+const cors = require('cors');
 
 const BasicStrategy = require('passport-http').BasicStrategy;
 
@@ -21,7 +22,7 @@ const connectio = mysql.createPool({
 });
 
 const app = express();
-
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
@@ -32,6 +33,8 @@ passport.use(new BasicStrategy(
 
   
   async function (ContactInfo, Password, done) { try {
+    console.log("ContactInfo: " + ContactInfo);
+    console.log("Password: " + Password);
     const managerUser = await manager.getUserByName(ContactInfo) 
 
 
@@ -140,7 +143,7 @@ app.post(
     return res.json({ token });
   })
 
-  app.post(
+  /*app.post(
     '/loginForJWTCustomer',
     passport.authenticate('basic', { session: false }),
     (req, res) => {
@@ -162,10 +165,10 @@ app.post(
       /* Sign the token with payload, key and options.
          Detailed documentation of the signing here:
          https://github.com/auth0/node-jsonwebtoken#readme */
-      const token = jwt.sign(payload, jwtSecretKey, options);
+     /* const token = jwt.sign(payload, jwtSecretKey, options);
   
       return res.json({ token });
-    })
+    })*/
 
 // Creating a GET route that returns data from the 'customers' table.
 app.get('/customers', function (req, res) {
