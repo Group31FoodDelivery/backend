@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const passport = require('passport');
 const customer = require('./modules/users');
 const bcrypt = require('bcryptjs');
+const cors = require('cors');
 
 const BasicStrategy = require('passport-http').BasicStrategy;
 
@@ -25,6 +26,7 @@ connectio.getConnection(function (err){
 
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
