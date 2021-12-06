@@ -14,10 +14,10 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/'})
  
 const connectio = mysql.createPool({
-  host     : 'yummygo.mysql.database.azure.com',
-  user     : 'Darkstratocaster@yummygo',
-  password : 'Yummygoadmin123',
-  database : 'mydb',
+  host     : 'eu-cdbr-west-01.cleardb.com',
+  user     : 'b80d1992047d2c',
+  password : 'b9e1504d',
+  database : 'heroku_f5283267ccef653',
   acquireTimeout: 600
 });
 
@@ -357,7 +357,7 @@ app.post('/Addorders',
 
 
     app.post('/addMenuItem/:restaurantId',
-    //only managers can create bands
+    //only managers can create menuitems
     passport.authenticate('jwt', { session: false }),
     function (req, res) 
     {
