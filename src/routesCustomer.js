@@ -13,11 +13,10 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/'})
  
 const connectio = mysql.createPool({
-  host     : 'yummygo.mysql.database.azure.com',
-  user     : 'Darkstratocaster@yummygo',
-  password : 'Yummygoadmin123',
-  database : 'mydb',
-  acquireTimeout: 600
+  host     : 'eu-cdbr-west-01.cleardb.com',
+  user     : 'b80d1992047d2c',
+  password : 'b9e1504d',
+  database : 'heroku_f5283267ccef653'
 });
 
 connectio.getConnection(function (err){

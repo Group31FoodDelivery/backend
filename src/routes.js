@@ -290,7 +290,7 @@ app.post('/restaurants',
       {
         connectio.getConnection(function (err, connection) {
         //check field filling
-        if(!req.body.Name  || !req.body.Type || !req.body.OperatingHours || !req.body.Price_level || !req.body.Rating || !req.body.Address || !req.body.Description || req.body.Image)
+        if(!req.body.Name  || !req.body.Type || !req.body.OperatingHours || !req.body.Price_level || !req.body.Rating || !req.body.Address || !req.body.Description )
         {
             //fields not filled, bad request
            res.sendStatus(400);
@@ -298,7 +298,9 @@ app.post('/restaurants',
 
         else
         {
-            connectio.query('INSERT INTO restaurant (restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,Image,managerId)VALUES(?,?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, req.body.Image, req.user.managerId]);
+            console.log(req.user.managerId)
+            connectio.query('INSERT INTO restaurant (restaurantId,Name,Address,OperatingHours,Price_level,Type,Rating,Description,Image,managerId)VALUES(?,?,?,?,?,?,?,?,?,?);',[uuidv4(), req.body.Name, req.body.Address, req.body.OperatingHours, req.body.Price_level, req.body.Type, req.body.Rating, req.body.Description, "", req.user.managerId]);
+            console.log(res.statusCode);
             res.sendStatus(201);
         }
       });
