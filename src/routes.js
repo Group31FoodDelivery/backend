@@ -339,19 +339,53 @@ app.get('/orders', function (req, res) {
 });
 
 
+app.get('/orderId', function (req, res) {
+  // Connecting to the database.
+  connectio.getConnection(function (err, connection) {
+
+  // Executing the MySQL query (select all data from the 'orders' table).
+  connectio.query('SELECT orderId FROM orders ORDER BY orderId DESC LIMIT 1;', function (error, results, fields) {
+    // If some error occurs, we throw an error.
+    if (error) throw error;
+    console.log(error);
+    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+    res.send(results)
+  });
+});
+});
+
 app.post('/Addorders',
       
       function (req, res) 
       {
         connectio.getConnection(function (err, connection) {
 
-        if(!req.body.Time)
+        if(!req.body.customerId || !req.body.address || !req.body.price || !req.body.state)
         {
            res.sendStatus(400);
         }
         else
         {
-            connectio.query('INSERT INTO orders(orderId,Received,Preparing,Ready_For_Delivery,Delivering,Delivered,Time,customerId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),false, false, false, false, false, req.body.Time, req.body.customerId]);
+            connectio.query('INSERT INTO orders(orderId,Time,customerId,address,Price,State)VALUES(?,?,?,?,?,?)',[uuidv4(),req.body.time, req.body.customerId, req.body.address, req.body.price, req.body.state]);
+            res.sendStatus(201);
+        }
+      });
+    });
+
+
+    app.post('/AddOrderItems',
+      
+      function (req, res) 
+      {
+        connectio.getConnection(function (err, connection) {
+
+        if(!req.body.amount || !req.body.customerId || !req.body.orderId )
+        {
+           res.sendStatus(400);
+        }
+        else
+        {
+            connectio.query('INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?);',[req.body.itemId, req.body.orderId, req.body.amount]);
             res.sendStatus(201);
         }
       });
@@ -393,6 +427,21 @@ app.get('/orders/:customerId', function (req, res) {
       res.send(results)
     });
   });
+});
+
+app.get('/orders/orderhistory/:customerId', function (req, res) {
+  // Connecting to the database.
+  connectio.getConnection(function (err, connection) {
+
+  // Executing a MySQL query to find specific customers orders
+  connectio.query('SELECT * from orders JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId where customerId = ?',[req.params.customerId], function (error, results, fields) {
+    // If some error occurs, we throw an error.
+    if (error) throw error;
+    console.log(error);
+    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+    res.send(results)
+  });
+});
 });
 
 
