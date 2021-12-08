@@ -338,6 +338,21 @@ app.get('/orders', function (req, res) {
   });
 });
 
+app.get('/menuorders', function (req, res) {
+  // Connecting to the database.
+  connectio.getConnection(function (err, connection) {
+
+  // Executing the MySQL query (select all data from the 'orders' table).
+  connectio.query('SELECT * FROM menuitem_order', function (error, results, fields) {
+    // If some error occurs, we throw an error.
+    if (error) throw error;
+    console.log(error);
+    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+    res.send(results)
+  });
+});
+});
+
 
 /*app.post('/Addorders',
       
@@ -427,13 +442,14 @@ app.get('/orders', function (req, res) {
       {
         connectio.getConnection(function (err, connection) {
 
-        if(!req.body.amount || !req.body.customerId || !req.body.orderId )
+        if(!req.body.amount || !req.body.itemId || !req.body.orderId)
         {
            res.sendStatus(400);
         }
         else
         {
-            connectio.query('INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?);',[req.body.itemId, req.body.orderId, req.body.amount]);
+            connectio.query('INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?);',
+            [req.body.itemId, req.body.orderId, req.body.amount]);
             res.sendStatus(201);
         }
       });
