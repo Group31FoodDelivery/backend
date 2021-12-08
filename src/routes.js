@@ -339,25 +339,11 @@ app.get('/orders', function (req, res) {
 });
 
 
-app.get('/orderId', function (req, res) {
-  // Connecting to the database.
-  connectio.getConnection(function (err, connection) {
-
-  // Executing the MySQL query (select all data from the 'orders' table).
-  connectio.query('SELECT orderId FROM orders ORDER BY orderId DESC LIMIT 1;', function (error, results, fields) {
-    // If some error occurs, we throw an error.
-    if (error) throw error;
-    console.log(error);
-    // Getting the 'response' from the database and sending it to our route. This is were the data is.
-    res.send(results)
-  });
-});
-});
-
-app.post('/Addorders',
+/*app.post('/Addorders',
       
       function (req, res) 
       {
+        const orderId = uuidv4()
         connectio.getConnection(function (err, connection) {
 
         if(!req.body.customerId || !req.body.address || !req.body.price || !req.body.state)
@@ -366,10 +352,72 @@ app.post('/Addorders',
         }
         else
         {
-            connectio.query('INSERT INTO orders(orderId,Time,customerId,address,Price,State)VALUES(?,?,?,?,?,?)',[uuidv4(),req.body.time, req.body.customerId, req.body.address, req.body.price, req.body.state]);
+            connectio.query('INSERT INTO orders(orderId,Time,customerId,address,Price,State,TimeStamp)VALUES(?,?,?,?,?,?,?)',[ orderId,req.body.time, req.body.customerId, req.body.address, req.body.price, req.body.state, req.body.state]);
             res.sendStatus(201);
+            
+
         }
       });
+    });  **/
+
+    app.post("/Addorders", (req, res) => {
+      
+      let orderId =  uuidv4();
+      let sql = 'INSERT INTO orders(orderId,Time,customerId,address,Price,State,TimeStamp)VALUES(?,?,?,?,?,?,?)';
+     // let sql2 = 'INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?)';
+      
+      
+      connectio.query(
+        sql,
+        [
+          orderId,
+          req.body.time,
+          req.body.customerId,
+          req.body.address,
+          req.body.price,
+          req.body.state,
+          req.body.timestamp
+        ],
+        (err, result) => {
+          if(err) {
+
+            res.sendStatus(400);
+    
+          } else {
+             
+              console.log(result)
+              res.json({orderId: orderId})
+              
+          }
+        }
+      );
+
+       
+     /* connectio.query(
+        sql2,
+        [
+          orderId,
+          req.body.time,
+          req.body.customerId,
+          req.body.address,
+          req.body.price,
+          req.body.state,
+          req.body.timestamp,
+
+        ],
+        (err, result) => {
+          if(err) {
+
+            res.sendStatus(400);
+    
+          } else {
+             
+              console.log(result)
+              res.json({orderId: orderId})
+              
+          }
+        }
+      );*/
     });
 
 
