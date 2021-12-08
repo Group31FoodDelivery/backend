@@ -283,6 +283,21 @@ app.get('/restaurants', function (req, res) {
   });
 });
 
+app.get('/restaurants/:managerId', function (req, res) {
+  // Connecting to the database.
+  connectio.getConnection(function (err, connection) {
+
+  // Executing the MySQL query (select all data from the 'restaurant' table).
+  connectio.query('SELECT * FROM restaurant WHERE managerId = ?',[req.params.managerId], function (error, results, fields) {
+    // If some error occurs, we throw an error.
+    if (error) throw error;
+    console.log(error);
+    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+    res.send(results)
+  });
+});
+});
+
 app.post('/restaurants',
       //only managers can create restaurants
       passport.authenticate('jwt', { session: false }),
