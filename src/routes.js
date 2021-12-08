@@ -354,6 +354,7 @@ app.get('/menuorders', function (req, res) {
 });
 
 
+
 /*app.post('/Addorders',
       
       function (req, res) 
@@ -435,25 +436,36 @@ app.get('/menuorders', function (req, res) {
       );*/
     });
 
-
-    app.post('/AddOrderItems',
+    app.post("/AddOrderItems", (req, res) => {
       
-      function (req, res) 
-      {
-        connectio.getConnection(function (err, connection) {
+      let sql = 'INSERT INTO menuitem_order(itemId,orderId,amount)VALUES(?,?,?)';
+     // let sql2 = 'INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?)';
+      
+      
+      connectio.query(
+        sql,
+        [
+          req.body.itemId,
+          req.body.orderId,
+          req.body.amount
+        ],
+        (err, result) => {
+          if(err) {
 
-        if(!req.body.amount || !req.body.itemId || !req.body.orderId)
-        {
-           res.sendStatus(400);
+            res.sendStatus(400);
+            console.log(err)
+    
+          } else {
+             
+              console.log(result)
+              res.sendStatus(201)
+              
+          }
         }
-        else
-        {
-            connectio.query('INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?);',
-            [req.body.itemId, req.body.orderId, req.body.amount]);
-            res.sendStatus(201);
-        }
-      });
+      );
     });
+
+
 
 
     app.post('/addMenuItem/:restaurantId',
