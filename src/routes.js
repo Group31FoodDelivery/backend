@@ -306,6 +306,21 @@ app.get('/restaurants', function (req, res) {
   });
 });
 
+app.get('/restaurants/:managerId', function (req, res) {
+  // Connecting to the database.
+  connectio.getConnection(function (err, connection) {
+
+  // Executing the MySQL query (select all data from the 'restaurant' table).
+  connectio.query('SELECT * FROM restaurant WHERE managerId = ?',[req.params.managerId], function (error, results, fields) {
+    // If some error occurs, we throw an error.
+    if (error) throw error;
+    console.log(error);
+    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+    res.send(results)
+  });
+});
+});
+
 app.post('/restaurants',
       //only managers can create restaurants
       passport.authenticate('jwt', { session: false }),
@@ -361,24 +376,84 @@ app.get('/orders', function (req, res) {
   });
 });
 
+app.get('/menuorders', function (req, res) {
+  // Connecting to the database.
+  connectio.getConnection(function (err, connection) {
 
-app.post('/Addorders',
+  // Executing the MySQL query (select all data from the 'orders' table).
+  connectio.query('SELECT * FROM menuitem_order', function (error, results, fields) {
+    // If some error occurs, we throw an error.
+    if (error) throw error;
+    console.log(error);
+    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+    res.send(results)
+  });
+});
+});
+
+
+    app.post("/Addorders", (req, res) => {
       
-      function (req, res) 
-      {
-        connectio.getConnection(function (err, connection) {
+      let orderId =  uuidv4();
+      let sql = 'INSERT INTO orders(orderId,Time,customerId,address,TotalPrice,State,TimeStamp)VALUES(?,?,?,?,?,?,?)';
+     // let sql2 = 'INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?)';
+      
+      
+      connectio.query(
+        sql,
+        [
+          orderId,
+          req.body.time,
+          req.body.customerId,
+          req.body.address,
+          req.body.price,
+          req.body.state,
+          req.body.timestamp
+        ],
+        (err, result) => {
+          if(err) {
 
-        if(!req.body.Time)
-        {
-           res.sendStatus(400);
+            res.sendStatus(400);
+    
+          } else {
+             
+              console.log(result)
+              res.json({orderId: orderId})
+              
+          }
         }
-        else
-        {
-            connectio.query('INSERT INTO orders(orderId,Received,Preparing,Ready_For_Delivery,Delivering,Delivered,Time,customerId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),false, false, false, false, false, req.body.Time, req.body.customerId]);
-            res.sendStatus(201);
-        }
-      });
+      );
+
     });
+
+    app.post("/AddOrderItems", (req, res) => {
+      
+      let sql = 'INSERT INTO menuitem_order(itemId,orderId,Qty)VALUES(?,?,?)';
+      
+      connectio.query(
+        sql,
+        [
+          req.body.itemId,
+          req.body.orderId,
+          req.body.amount
+        ],
+        (err, result) => {
+          if(err) {
+
+            res.sendStatus(400);
+            console.log(err)
+    
+          } else {
+             
+              console.log(result)
+              res.sendStatus(201)
+              
+          }
+        }
+      );
+    });
+
+
 
 
     app.post('/addMenuItem/:restaurantId',
@@ -416,6 +491,21 @@ app.get('/orders/:customerId', function (req, res) {
       res.send(results)
     });
   });
+});
+
+app.get('/orders/orderhistory/:customerId', function (req, res) {
+  // Connecting to the database.
+  connectio.getConnection(function (err, connection) {
+
+  // Executing a MySQL query to find specific customers orders
+  connectio.query('SELECT * from orders JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId where customerId = ?',[req.params.customerId], function (error, results, fields) {
+    // If some error occurs, we throw an error.
+    if (error) throw error;
+    console.log(error);
+    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+    res.send(results)
+  });
+});
 });
 
 
