@@ -12,7 +12,17 @@ const path = require('path');
 const BasicStrategy = require('passport-http').BasicStrategy;
 
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/'})
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/")
+  },
+  filename: function (req, file, cb){
+    cb(null, Date.now() + path.extname(file.originalname))
+  }
+})
+
+const upload = multer({ storage: storage})
  
 const connectio = mysql.createPool({
   host     : 'eu-cdbr-west-01.cleardb.com',
@@ -229,7 +239,7 @@ app.get('/managers', function (req, res) {
 
 
 
-app.put('/restaurants/images/',upload.single('kuva') , function (req, res, err){
+app.put('/restaurants/images/:restaurantId',upload.single('kuva') , function (req, res, err){
 
 
 connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?;',[req.file.filename, req.params.restaurantId], (err, result) =>{
@@ -255,7 +265,8 @@ connectio.query('SELECT Image FROM restaurant WHERE restaurantId = ?;', [req.par
       }
       if (results){
         console.log("resultseissa");
-      res.sendFile(path.join(__dirname, "./uploads/" + "a0c3b7c85832efd26f2ba68c45fd9cce.jpg"));
+        console.log(results[0].Image);
+      res.sendFile(path.join(__dirname, "./uploads/"+results[0].Image));
     
     }
 
