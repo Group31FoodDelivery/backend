@@ -369,28 +369,6 @@ app.get('/menuorders', function (req, res) {
 });
 
 
-
-/*app.post('/Addorders',
-      
-      function (req, res) 
-      {
-        const orderId = uuidv4()
-        connectio.getConnection(function (err, connection) {
-
-        if(!req.body.customerId || !req.body.address || !req.body.price || !req.body.state)
-        {
-           res.sendStatus(400);
-        }
-        else
-        {
-            connectio.query('INSERT INTO orders(orderId,Time,customerId,address,Price,State,TimeStamp)VALUES(?,?,?,?,?,?,?)',[ orderId,req.body.time, req.body.customerId, req.body.address, req.body.price, req.body.state, req.body.state]);
-            res.sendStatus(201);
-            
-
-        }
-      });
-    });  **/
-
     app.post("/Addorders", (req, res) => {
       
       let orderId =  uuidv4();
@@ -423,32 +401,6 @@ app.get('/menuorders', function (req, res) {
         }
       );
 
-       
-     /* connectio.query(
-        sql2,
-        [
-          orderId,
-          req.body.time,
-          req.body.customerId,
-          req.body.address,
-          req.body.price,
-          req.body.state,
-          req.body.timestamp,
-
-        ],
-        (err, result) => {
-          if(err) {
-
-            res.sendStatus(400);
-    
-          } else {
-             
-              console.log(result)
-              res.json({orderId: orderId})
-              
-          }
-        }
-      );*/
     });
 
     app.post("/AddOrderItems", (req, res) => {
