@@ -7,6 +7,7 @@ const manager = require('./modules/users');
 const bcrypt = require('bcryptjs');
 const customer = require('./modules/users');
 const cors = require('cors');
+const path = require('path');
 
 const BasicStrategy = require('passport-http').BasicStrategy;
 
@@ -228,16 +229,38 @@ app.get('/managers', function (req, res) {
 
 
 
-app.put('/restaurants/images/:restaurantId',upload.single('kuva') , function (req, res, next){
+app.put('/restaurants/images/',upload.single('kuva') , function (req, res, err){
 
-connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?',[req.file.filename, req.params.restaurantId]);
-console.log(req.file);
-console.log(req.file.filename);
-res.sendStatus(200);
+
+connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?;',[req.file.filename, req.params.restaurantId], (err, result) =>{
+    if(err) {
+      console.log(err)
+      res.send(err)
+    }
+    if (result) {
+      console.log(req.file);
+      console.log(req.file.filename);
+      res.sendStatus(200);
+    }
+});
 
 
 });
 
+app.get("/restaurants/images/:restaurantId", function (req, res) {
+connectio.query('SELECT Image FROM restaurant WHERE restaurantId = ?;', [req.params.restaurantId], function (error, results) {
+
+      if (error){ 
+        console.log(error);
+      }
+      if (results){
+        console.log("resultseissa");
+      res.sendFile(path.join(__dirname, "./uploads/" + "a0c3b7c85832efd26f2ba68c45fd9cce.jpg"));
+    
+    }
+
+    })
+});
 
 
     app.post('/registerManager',
