@@ -353,13 +353,12 @@ app.get('/orders', function (req, res) {
   });
 });
 
-
-app.get('/orderId', function (req, res) {
+app.get('/menuorders', function (req, res) {
   // Connecting to the database.
   connectio.getConnection(function (err, connection) {
 
   // Executing the MySQL query (select all data from the 'orders' table).
-  connectio.query('SELECT orderId FROM orders ORDER BY orderId DESC LIMIT 1;', function (error, results, fields) {
+  connectio.query('SELECT * FROM menuitem_order', function (error, results, fields) {
     // If some error occurs, we throw an error.
     if (error) throw error;
     console.log(error);
@@ -369,42 +368,69 @@ app.get('/orderId', function (req, res) {
 });
 });
 
-app.post('/Addorders',
-      
-      function (req, res) 
-      {
-        connectio.getConnection(function (err, connection) {
 
-        if(!req.body.customerId || !req.body.address || !req.body.price || !req.body.state)
-        {
-           res.sendStatus(400);
+    app.post("/Addorders", (req, res) => {
+      
+      let orderId =  uuidv4();
+      let sql = 'INSERT INTO orders(orderId,Time,customerId,address,TotalPrice,State,TimeStamp)VALUES(?,?,?,?,?,?,?)';
+     // let sql2 = 'INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?)';
+      
+      
+      connectio.query(
+        sql,
+        [
+          orderId,
+          req.body.time,
+          req.body.customerId,
+          req.body.address,
+          req.body.price,
+          req.body.state,
+          req.body.timestamp
+        ],
+        (err, result) => {
+          if(err) {
+
+            res.sendStatus(400);
+    
+          } else {
+             
+              console.log(result)
+              res.json({orderId: orderId})
+              
+          }
         }
-        else
-        {
-            connectio.query('INSERT INTO orders(orderId,Time,customerId,address,Price,State)VALUES(?,?,?,?,?,?)',[uuidv4(),req.body.time, req.body.customerId, req.body.address, req.body.price, req.body.state]);
-            res.sendStatus(201);
+      );
+
+    });
+
+    app.post("/AddOrderItems", (req, res) => {
+      
+      let sql = 'INSERT INTO menuitem_order(itemId,orderId,Qty)VALUES(?,?,?)';
+      
+      connectio.query(
+        sql,
+        [
+          req.body.itemId,
+          req.body.orderId,
+          req.body.amount
+        ],
+        (err, result) => {
+          if(err) {
+
+            res.sendStatus(400);
+            console.log(err)
+    
+          } else {
+             
+              console.log(result)
+              res.sendStatus(201)
+              
+          }
         }
-      });
+      );
     });
 
 
-    app.post('/AddOrderItems',
-      
-      function (req, res) 
-      {
-        connectio.getConnection(function (err, connection) {
-
-        if(!req.body.amount || !req.body.customerId || !req.body.orderId )
-        {
-           res.sendStatus(400);
-        }
-        else
-        {
-            connectio.query('INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?);',[req.body.itemId, req.body.orderId, req.body.amount]);
-            res.sendStatus(201);
-        }
-      });
-    });
 
 
     app.post('/addMenuItem/:restaurantId',
