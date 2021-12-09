@@ -379,7 +379,7 @@ app.get('/menuorders', function (req, res) {
     app.post("/Addorders", (req, res) => {
       
       let orderId =  uuidv4();
-      let sql = 'INSERT INTO orders(orderId,Time,customerId,address,Price,State,TimeStamp)VALUES(?,?,?,?,?,?,?)';
+      let sql = 'INSERT INTO orders(orderId,Time,customerId,address,TotalPrice,State,TimeStamp)VALUES(?,?,?,?,?,?,?)';
      // let sql2 = 'INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?)';
       
       
@@ -438,9 +438,7 @@ app.get('/menuorders', function (req, res) {
 
     app.post("/AddOrderItems", (req, res) => {
       
-      let sql = 'INSERT INTO menuitem_order(itemId,orderId,amount)VALUES(?,?,?)';
-     // let sql2 = 'INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?)';
-      
+      let sql = 'INSERT INTO menuitem_order(itemId,orderId,Qty)VALUES(?,?,?)';
       
       connectio.query(
         sql,
