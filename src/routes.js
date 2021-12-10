@@ -252,9 +252,7 @@ connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?;',[req.f
       console.log(req.file.filename);
       res.sendStatus(200);
     }
-});
-
-
+  });
 });
 
 app.get("/restaurants/images/:restaurantId", function (req, res) {
@@ -370,6 +368,41 @@ app.get('/menuitems', function (req, res) {
     });
   });
 });
+
+
+app.put('/menuitems/images/:itemId',upload.single('kuva') , function (req, res, err){
+
+
+  connectio.query('UPDATE menuitem SET Image = ? WHERE itemId = ?;',[req.file.filename, req.params.itemId], (err, result) =>{
+      if(err) {
+        console.log(err)
+        res.send(err)
+      }
+      if (result) {
+        console.log(req.file);
+        console.log(req.file.filename);
+        res.sendStatus(200);
+      }
+  });
+});
+
+
+app.get("/menuitems/images/:itemId", function (req, res) {
+  connectio.query('SELECT Image FROM menuitem WHERE itemId = ?;', [req.params.itemId], function (error, results) {
+    
+        if (error){ 
+          console.log(error);
+        }
+        if (results){
+          console.log("pitsaa haetaan");
+          
+          console.log(results[0].Image);
+         res.sendFile(path.join(__dirname, "./uploads/"+results[0].Image));
+      
+       }
+    
+       })
+  });
 
 
 app.get('/orders', function (req, res) {
