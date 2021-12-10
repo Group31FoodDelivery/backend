@@ -330,6 +330,22 @@ app.get('/restaurants/:managerId', function (req, res) {
 });
 });
 
+app.get('/orders/:managerId', function (req, res) {
+  // Connecting to the database.
+  connectio.getConnection(function (err, connection) {
+
+  // Executing the MySQL query (select all data from the 'restaurant' table).
+  connectio.query('SELECT * from orders JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId join manager on restaurant.managerId = manager.managerId where manager.managerId = ?',[req.params.managerId], function (error, results, fields) {
+    // If some error occurs, we throw an error.
+    if (error) throw error;
+    console.log(error);
+    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+    res.send(results);
+  });
+});
+});
+
+
 app.post('/restaurants',
       //only managers can create restaurants
       passport.authenticate('jwt', { session: false }),
