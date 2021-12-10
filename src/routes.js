@@ -7,11 +7,22 @@ const manager = require('./modules/users');
 const bcrypt = require('bcryptjs');
 const customer = require('./modules/users');
 const cors = require('cors');
+const path = require('path');
 
 const BasicStrategy = require('passport-http').BasicStrategy;
 
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/'})
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/")
+  },
+  filename: function (req, file, cb){
+    cb(null, Date.now() + path.extname(file.originalname))
+  }
+})
+
+const upload = multer({ storage: storage})
  
 const connectio = mysql.createPool({
   host     : 'eu-cdbr-west-01.cleardb.com',
@@ -228,16 +239,39 @@ app.get('/managers', function (req, res) {
 
 
 
-app.put('/restaurants/images/:restaurantId',upload.single('kuva') , function (req, res, next){
+app.put('/restaurants/images/:restaurantId',upload.single('kuva') , function (req, res, err){
 
-connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?',[req.file.filename, req.params.restaurantId]);
-console.log(req.file);
-console.log(req.file.filename);
-res.sendStatus(200);
+
+connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?;',[req.file.filename, req.params.restaurantId], (err, result) =>{
+    if(err) {
+      console.log(err)
+      res.send(err)
+    }
+    if (result) {
+      console.log(req.file);
+      console.log(req.file.filename);
+      res.sendStatus(200);
+    }
+});
 
 
 });
 
+app.get("/restaurants/images/:restaurantId", function (req, res) {
+connectio.query('SELECT Image FROM restaurant WHERE restaurantId = ?;', [req.params.restaurantId], function (error, results) {
+
+      if (error){ 
+        console.log(error);
+      }
+      if (results){
+        console.log("resultseissa");
+        console.log(results[0].Image);
+      res.sendFile(path.join(__dirname, "./uploads/"+results[0].Image));
+    
+    }
+
+    })
+});
 
 
     app.post('/registerManager',
