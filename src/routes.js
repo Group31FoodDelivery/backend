@@ -257,6 +257,22 @@ connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?;',[req.f
 
 });
 
+app.put("/orders/:customerId/:orderId", function(req, res) {
+  
+  connectio.query('UPDATE orders SET State = ?, Time = ? WHERE customerId = ? AND orderId = ?;',[req.body.state, req.body.time, req.params.customerId, req.params.orderId],
+  (err, result) =>{
+    if(err) {
+      console.log(err)
+      res.send(err)
+    }
+    if (result) {
+      console.log(result);
+      console.log(req.body);
+      res.sendStatus(200);
+    }
+})});
+
+
 app.get("/restaurants/images/:restaurantId", function (req, res) {
 connectio.query('SELECT Image FROM restaurant WHERE restaurantId = ?;', [req.params.restaurantId], function (error, results) {
 
@@ -337,12 +353,12 @@ app.get('/orders/:managerId', function (req, res) {
   connectio.getConnection(function (err, connection) {
 
   // Executing the MySQL query (select all data from the 'restaurant' table).
-  connectio.query('SELECT * from orders JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId join manager on restaurant.managerId = manager.managerId where manager.managerId = ?',[req.params.managerId], function (error, results, fields) {
+  connectio.query('SELECT *, customer.ContactInfo from customer JOIN orders on customer.customerId = orders.customerId JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId join manager on restaurant.managerId = manager.managerId where manager.managerId = ?',[req.params.managerId], function (error, results, fields) {
     // If some error occurs, we throw an error.
     if (error) throw error;
     console.log(error);
     // Getting the 'response' from the database and sending it to our route. This is were the data is.
-    res.send(results)
+    res.send(results);
   });
 });
 });
@@ -464,7 +480,7 @@ app.get('/menuorders', function (req, res) {
           req.body.amount
         ],
         (err, result) => {
-          if(err) {
+          if(err || !req.body.itemId || !req.body.orderId || !req.body.amount) {
 
             res.sendStatus(400);
             console.log(err)
