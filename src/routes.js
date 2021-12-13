@@ -255,9 +255,9 @@ connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?;',[req.f
   });
 });
 
-app.put("/orders/:customerId/:orderId", function(req, res) {
+app.put("/orders/:orderId", function(req, res) {
   
-  connectio.query('UPDATE orders SET State = ?, Time = ? WHERE customerId = ? AND orderId = ?;',[req.body.state, req.body.time, req.params.customerId, req.params.orderId],
+  connectio.query('UPDATE orders SET State = ?, Time = ? WHERE orderId = ?;',[req.body.state, req.body.time, req.params.orderId],
   (err, result) =>{
     if(err) {
       console.log(err)
