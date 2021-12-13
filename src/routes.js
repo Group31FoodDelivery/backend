@@ -538,7 +538,7 @@ app.get('/menuorders', function (req, res) {
     {
       connectio.getConnection(function (err, connection) {
       //check field filling
-      if(!req.body.itemId || !req.body.ItemName || !req.body.Description || !req.body.Price || !req.body.Category)
+      if(!req.body.ItemName || !req.body.Description || !req.body.Price || !req.body.Category)
       {
           //fields not filled, bad request
          res.sendStatus(400);
@@ -547,7 +547,7 @@ app.get('/menuorders', function (req, res) {
       else
       {
 
-          connectio.query('INSERT INTO menuitem(itemId,ItemName,Description,Price,Image,Category,amount,restaurantId)VALUES(?,?,?,?,?,?,?,?);',[req.body.itemId,req.body.ItemName, req.body.Description, req.body.Price, req.body.Image, req.body.Category, 0, req.params.restaurantId]);
+          connectio.query('INSERT INTO menuitem(itemId,ItemName,Description,Price,Image,Category,amount,restaurantId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.ItemName, req.body.Description, req.body.Price, req.body.Image, req.body.Category, 0, req.params.restaurantId]);
 
           res.sendStatus(201);
       }
