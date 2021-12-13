@@ -29,13 +29,14 @@ const connectio = mysql.createPool({
   user     : 'b80d1992047d2c',
   password : 'b9e1504d',
   database : 'heroku_f5283267ccef653',
-  acquireTimeout: 600
+  acquireTimeout: 600,
+  connectionLimit: 100
 });
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: "50mb"}));
+app.use(bodyParser.urlencoded({limit: "50mb",extended: false}));
 app.use(passport.initialize());
 
 //let ContactInfo, Password;
@@ -403,9 +404,10 @@ app.get('/menuitems', function (req, res) {
 
 app.put('/menuitems/images/:itemId',upload.single('kuva') , function (req, res, err){
 
-
+console.log(req.file.filename);
   connectio.query('UPDATE menuitem SET Image = ? WHERE itemId = ?;',[req.file.filename, req.params.itemId], (err, result) =>{
       if(err) {
+        
         console.log(err)
         res.send(err)
       }
@@ -536,7 +538,7 @@ app.get('/menuorders', function (req, res) {
     {
       connectio.getConnection(function (err, connection) {
       //check field filling
-      if(!req.body.Name || !req.body.Description || !req.body.Price || !req.body.Category)
+      if(!req.body.itemId || !req.body.ItemName || !req.body.Description || !req.body.Price || !req.body.Category)
       {
           //fields not filled, bad request
          res.sendStatus(400);
@@ -544,7 +546,9 @@ app.get('/menuorders', function (req, res) {
 
       else
       {
-          connectio.query('INSERT INTO menuitem(itemId,ItemName,Description,Price,Image,Category,amount,restaurantId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.Name, req.body.Description, req.body.Price, req.body.Image, req.body.Category, 0, req.params.restaurantId]);
+
+          connectio.query('INSERT INTO menuitem(itemId,ItemName,Description,Price,Image,Category,amount,restaurantId)VALUES(?,?,?,?,?,?,?,?);',[req.body.itemId,req.body.ItemName, req.body.Description, req.body.Price, req.body.Image, req.body.Category, 0, req.params.restaurantId]);
+
           res.sendStatus(201);
       }
     });
