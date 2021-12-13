@@ -16,7 +16,8 @@ const connectio = mysql.createPool({
   host     : 'eu-cdbr-west-01.cleardb.com',
   user     : 'b80d1992047d2c',
   password : 'b9e1504d',
-  database : 'heroku_f5283267ccef653'
+  database : 'heroku_f5283267ccef653',
+  connectionLimit: 100
 });
 
 connectio.getConnection(function (err){

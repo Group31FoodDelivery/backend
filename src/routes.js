@@ -29,7 +29,8 @@ const connectio = mysql.createPool({
   user     : 'b80d1992047d2c',
   password : 'b9e1504d',
   database : 'heroku_f5283267ccef653',
-  acquireTimeout: 600
+  acquireTimeout: 600,
+  connectionLimit: 100
 });
 
 const app = express();
