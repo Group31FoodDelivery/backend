@@ -544,7 +544,7 @@ app.get('/menuorders', function (req, res) {
 
       else
       {
-          connectio.query('INSERT INTO menuitem(itemId,Name,Description,Price,Image,Category,amount,restaurantId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.Name, req.body.Description, req.body.Price, req.body.Image, req.body.Category, 0, req.params.restaurantId]);
+          connectio.query('INSERT INTO menuitem(itemId,ItemName,Description,Price,Image,Category,amount,restaurantId)VALUES(?,?,?,?,?,?,?,?);',[uuidv4(),req.body.Name, req.body.Description, req.body.Price, req.body.Image, req.body.Category, 0, req.params.restaurantId]);
           res.sendStatus(201);
       }
     });
@@ -571,7 +571,7 @@ app.get('/orders/orderhistory/:customerId', function (req, res) {
   connectio.getConnection(function (err, connection) {
 
   // Executing a MySQL query to find specific customers orders
-  connectio.query('SELECT * from orders JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId where customerId = ?',[req.params.customerId], function (error, results, fields) {
+  connectio.query('SELECT * from orders JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId where customerId = ? ORDER BY TimeStamp DESC',[req.params.customerId], function (error, results, fields) {
     // If some error occurs, we throw an error.
     if (error) throw error;
     console.log(error);
