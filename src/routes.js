@@ -256,6 +256,22 @@ connectio.query('UPDATE restaurant SET Image = ? WHERE restaurantId = ?;',[req.f
   });
 });
 
+app.put("/orders/:orderId", function(req, res) {
+  
+  connectio.query('UPDATE orders SET State = ?, Time = ? WHERE orderId = ?;',[req.body.state, req.body.time, req.params.orderId],
+  (err, result) =>{
+    if(err) {
+      console.log(err)
+      res.send(err)
+    }
+    if (result) {
+      console.log(result);
+      console.log(req.body);
+      res.sendStatus(200);
+    }
+})});
+
+
 app.get("/restaurants/images/:restaurantId", function (req, res) {
 connectio.query('SELECT Image FROM restaurant WHERE restaurantId = ?;', [req.params.restaurantId], function (error, results) {
 
@@ -327,6 +343,21 @@ app.get('/restaurants/:managerId', function (req, res) {
     console.log(error);
     // Getting the 'response' from the database and sending it to our route. This is were the data is.
     res.send(results)
+  });
+});
+});
+
+app.get('/orders/:managerId', function (req, res) {
+  // Connecting to the database.
+  connectio.getConnection(function (err, connection) {
+
+  // Executing the MySQL query (select all data from the 'restaurant' table).
+  connectio.query('SELECT *, customer.ContactInfo from customer JOIN orders on customer.customerId = orders.customerId JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId join manager on restaurant.managerId = manager.managerId where manager.managerId = ?',[req.params.managerId], function (error, results, fields) {
+    // If some error occurs, we throw an error.
+    if (error) throw error;
+    console.log(error);
+    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+    res.send(results);
   });
 });
 });
@@ -444,7 +475,7 @@ app.get('/menuorders', function (req, res) {
       let sql = 'INSERT INTO orders(orderId,Time,customerId,address,TotalPrice,State,TimeStamp)VALUES(?,?,?,?,?,?,?)';
      // let sql2 = 'INSERT INTO menuitem_order(itemId, orderId, amount)VALUES(?,?,?)';
       
-      
+     passport.authenticate('jwt', { session: false })
       connectio.query(
         sql,
         [
@@ -484,7 +515,7 @@ app.get('/menuorders', function (req, res) {
           req.body.amount
         ],
         (err, result) => {
-          if(err) {
+          if(err || !req.body.itemId || !req.body.orderId || !req.body.amount) {
 
             res.sendStatus(400);
             console.log(err)
@@ -498,8 +529,6 @@ app.get('/menuorders', function (req, res) {
         }
       );
     });
-
-
 
 
     app.post('/addMenuItem/:restaurantId',
@@ -517,7 +546,9 @@ app.get('/menuorders', function (req, res) {
 
       else
       {
+
           connectio.query('INSERT INTO menuitem(itemId,ItemName,Description,Price,Image,Category,amount,restaurantId)VALUES(?,?,?,?,?,?,?,?);',[req.body.itemId,req.body.ItemName, req.body.Description, req.body.Price, req.body.Image, req.body.Category, 0, req.params.restaurantId]);
+
           res.sendStatus(201);
       }
     });
@@ -544,7 +575,7 @@ app.get('/orders/orderhistory/:customerId', function (req, res) {
   connectio.getConnection(function (err, connection) {
 
   // Executing a MySQL query to find specific customers orders
-  connectio.query('SELECT * from orders JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId where customerId = ?',[req.params.customerId], function (error, results, fields) {
+  connectio.query('SELECT * from orders JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId where customerId = ? ORDER BY TimeStamp DESC',[req.params.customerId], function (error, results, fields) {
     // If some error occurs, we throw an error.
     if (error) throw error;
     console.log(error);
