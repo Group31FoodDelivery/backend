@@ -1,24 +1,53 @@
 const mydb = require('./mydb')
 const express = require('express');
 
+
 //functions of User2 for users.js:
 module.exports = {
 
   //function that is used for getting userinformation by name:
-  getUserByName: async function(username)
+  getUserByName: async function(ContactInfo)
   {
     var results2;
     var ContactInfo2;
     
-    var results = await mydb.query('SELECT * FROM managers;');
+    var results = await mydb.query('SELECT * FROM manager;');
+    //console.log(results);
     
-    results2= results.find(u => u.ContactInfo == username)
-    ContactInfo2 = results2.ContactInfo;
+    results2= results.find(u => u.ContactInfo == ContactInfo)
+    if (results2 == undefined) {
+      ContactInfo2 = undefined;
+    } else {
+      ContactInfo2 = results2.ContactInfo;
+    }
+    
 
-    if (ContactInfo2 == username)
+    if (ContactInfo2 == ContactInfo || results2 != undefined)
     {
       console.log("going back");
-      console.log(results2);
+      //console.log(results2);
+      return results2;
+    }
+    else
+    {
+      return undefined;
+    }
+  },
+  getCustomerByName: async function(Username)
+  {
+    var results2;
+    var Username2;
+    
+    var results = await mydb.query('SELECT * FROM customer;');
+    //console.log(results);
+    
+    results2= results.find(u => u.Username == Username)
+    Username2 = results2.Username;
+
+    if (Username2 == Username)
+    {
+      console.log("going back");
+      //console.log(results2);
       return results2;
     }
     else
@@ -50,4 +79,17 @@ module.exports = {
     ,[username,password,name,email,phoneNumber]);
     console.log("201,created");
   }*/
+
+getCustomerByUsername(Username, callback)
+{
+  mydb.query('SELECT * FROM customer WHERE Username = ?', [Username], function(err, result)
+  {
+    if (err)
+    callback(err,null);
+    else{
+      callback(null, result[0]);
+    }
+
+  });
+}
 }
