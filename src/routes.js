@@ -2,17 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const { v4: uuidv4 } = require('uuid');
-<<<<<<< HEAD
 const passport = require('passport');
 const managers = require('./modules/users');
 const bcrypt = require('bcryptjs');
 
 const BasicStrategy = require('passport-http').BasicStrategy;
 
-=======
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/'})
->>>>>>> 55f86473be8e8296326727285b00fc067b7d0852
  
 const connectio = mysql.createPool({
   host     : 'yummygo.mysql.database.azure.com',
@@ -45,8 +42,8 @@ passport.use(new BasicStrategy(
       });
     }),*/
        
-  function (ContactInfo, Password, done) {
-    const manager = managers.getUserByName(ContactInfo);
+  function (username, password, done) {
+    const manager = managers.getUserByName(username);
     console.log(manager.ContactInfo);
     if(manager == undefined) {
       // Username not found
@@ -55,7 +52,7 @@ passport.use(new BasicStrategy(
     }
 
     /* Verify password match */
-    if(bcrypt.compareSync(Password, manager.Password) == false) {
+    if(bcrypt.compareSync(password, manager.Password) == false) {
       // Password does not match
       console.log("HTTP Basic password not matching username");
       return done(null, false, { message: "HTTP Basic password not found" });

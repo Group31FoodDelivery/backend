@@ -5,17 +5,17 @@ const express = require('express');
 module.exports = {
 
   //function that is used for getting userinformation by name:
-  getUserByName: async function(ContactInfo)
+  getUserByName: async function(username)
   {
     var results2;
     var ContactInfo2;
     
     var results = await mydb.query('SELECT * FROM managers;');
     
-    results2= results.find(u => u.ContactInfo == ContactInfo)
+    results2= results.find(u => u.ContactInfo == username)
     ContactInfo2 = results2.ContactInfo;
 
-    if (ContactInfo2 == ContactInfo)
+    if (ContactInfo2 == username)
     {
       console.log("going back");
       console.log(results2);
