@@ -352,7 +352,7 @@ app.get('/orders/:managerId', function (req, res) {
   connectio.getConnection(function (err, connection) {
 
   // Executing the MySQL query (select all data from the 'restaurant' table).
-  connectio.query('SELECT *, customer.ContactInfo from customer JOIN orders on customer.customerId = orders.customerId JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId join manager on restaurant.managerId = manager.managerId where manager.managerId = ?',[req.params.managerId], function (error, results, fields) {
+  connectio.query('SELECT *, customer.ContactInfo from customer JOIN orders on customer.customerId = orders.customerId JOIN menuitem_order on orders.orderId = menuitem_order.orderId JOIN menuitem on menuitem_order.itemId = menuitem.itemId JOIN restaurant on menuItem.restaurantId = restaurant.restaurantId join manager on restaurant.managerId = manager.managerId where manager.managerId = ? ORDER BY TimeStamp DESC',[req.params.managerId], function (error, results, fields) {
     // If some error occurs, we throw an error.
     if (error) throw error;
     console.log(error);
